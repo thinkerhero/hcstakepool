@@ -1,0 +1,76 @@
+{{define "auth/signup"}}
+<div class="wrapper">
+    <div class="row">
+    <div class="col-xs-15 col-md-8 col-lg-8 notication-col center-block">
+       {{if .SMTPDisabled }}<div class="well well-notification  orange-notification">Mail server not configured.  You will not receive an email verification link.</div>{{end}}
+	{{range .FlashError}}<div class="well well-notification  orange-notification">{{.}}</div>{{end}}
+	{{range .FlashSuccess}}<div class="well well-notification green-notification">{{.}}</div>{{end}}
+	{{if .IsClosed }}<div class="well well-notification  orange-notification">{{.ClosePoolMsg}}</div>{{end}}
+    </div>
+    <div class="col-sm-15 col-md-6 text-left center-block">
+    <h1 style="{{if .FlashSuccess}}display: none;{{end}}">Sign Up</h1>
+    <form method="post" class="form-horizontal">
+  <div class="form-group" style="{{if .FlashSuccess}}display: none;{{end}}">
+    <label class="control-label" for="email">Email:</label>
+      <input name="email" type="email" class="form-control" placeholder="Email" required>
+  </div>
+  <div class="form-group" style="{{if .FlashSuccess}}display: none;{{end}}">
+    <label class="control-label" for="password">Password:</label>
+      <input name="password" type="password" class="form-control" id="password" placeholder="Password" required>
+  </div>
+  <div class="form-group" style="{{if .FlashSuccess}}display: none;{{end}}">
+    <label class="control-label" for="passwordrepeat">Password:</label>
+      <input name="passwordrepeat" type="password" class="form-control" placeholder="Password" required>
+  </div>
+
+  <div class="form-group" style="{{if .FlashSuccess}}display: none;{{end}}">
+      <label class="control-label" for="verifyValue">Verification Code:</label>
+	  <div class="verifyBox clearfix">
+		<input name="verifyValue" type="VerifyValue" class="form-control" autocomplete="off" placeholder="Verification Code" required>
+		<div class="img"><img id="VerifyKeyImage" onclick="refreshVerifyCode" /></div>
+	  </div>
+  </div>
+
+<div class="form-group row">
+  <div class="form-group pull-left" style="{{if .FlashSuccess}}display: none;{{end}}">
+    <div class="sign-in-button">
+      <button id="signin" name="signin" type="submit" class="btn btn-primary" {{if .IsClosed }}disabled{{end}}>Sign Up</button>
+    </div>
+  </div>
+
+  <div class="form-group pull-right" style="{{if .FlashSuccess}}display: none;{{end}}">
+<!--    <label class="col-md-4 control-label" for="reset"></label> -->
+        <p><a href="/passwordreset">Forgot your password?</a></p>
+        <p><a href="/signup">New user?</a></p>
+  </div>
+</div>
+  <input type="hidden" id="VerifyKey"  name="verifyKey">
+	<input type="hidden" name="{{.CsrfKey}}" value={{.CsrfToken}}>
+    </form>
+    </div> 
+    </div>
+</div>
+<script>
+    function refreshVerifyCode (){
+      $.ajax({
+              url: "api/v1/generatecaptcha",
+              data:{},
+              type: "GET",
+              dataType:'json',
+              success:function(result){
+                  $("#VerifyKey").val(result.data.CaptchaId)
+                  $("#VerifyKeyImage").attr("src",result.data.ImageBlob)
+              },
+              error:function(er){
+                console.log(er)
+              }}
+            );
+    }
+    $(document).ready(function(){ 
+      refreshVerifyCode()
+      $("#VerifyKeyImage").click(function(){
+        refreshVerifyCode()
+      });
+  　});  
+  </script>
+{{end}}
