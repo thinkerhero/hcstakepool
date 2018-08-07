@@ -53,6 +53,10 @@ var (
 	StakepooldUpdateKindTickets = "TICKETS"
 )
 
+const (
+	MIME = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+)
+
 // MainController is the wallet RPC controller type.  Its methods include the
 // route handlers.
 type MainController struct {
@@ -548,8 +552,8 @@ func (controller *MainController) SendMailUsingTLS(emailaddress string, subject 
 	msg := []byte("To: " + emailaddress + "\r\n" +
 		"From: " + controller.smtpFrom + "\r\n" +
 		"Subject: " + subject + "\r\n" +
-		"\r\n" +
-		body + "\r\n")
+		MIME +
+		body)
 
 	if err = c.Mail(controller.smtpUsername); err != nil {
 		return err
